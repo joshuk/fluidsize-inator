@@ -24,7 +24,7 @@ const configBaseVariables = [
 ];
 const classesBaseVariables = [
     {
-        name: 'Body/font-size',
+        name: 'BodyR/font-size',
         baseValue: 16,
         values: [
             {
@@ -34,7 +34,7 @@ const classesBaseVariables = [
         ],
     },
     {
-        name: 'Body/line-height',
+        name: 'BodyR/line-height',
         baseValue: 18,
         values: [
             {
@@ -45,6 +45,8 @@ const classesBaseVariables = [
     },
 ];
 const createButton = document.querySelector('.js-create-styles');
+const statusText = document.querySelector('.js-status');
+const stylesList = document.querySelector('.js-styles-list');
 const getVariableCollectionNames = () => __awaiter(this, void 0, void 0, function* () {
     const variableCollections = yield webflow.getAllVariableCollections();
     const variableCollectionNames = yield Promise.all(variableCollections.map(collection => {
@@ -146,12 +148,43 @@ const getConfigObjectFromVariables = () => __awaiter(this, void 0, void 0, funct
     }
     return configObject;
 });
-const getFluidCssString = (maxSize, minSize, minScreen, maxScreen) => {
+const getFluidCssString = (minSize, maxSize, minScreen, maxScreen) => {
     return `
-    min(calc(${maxSize} * 1px), max(calc(${minSize} * 1px), calc(calc(${minSize} * 1px) + (${maxSize} - ${minSize}) * ((min(100vw, calc(100vh * 1.77777777778)) - calc(${minScreen} * 1px)) / (${maxScreen} - ${minScreen})))))
+    min(
+      calc(${maxSize} * 1px),
+      max(
+        calc(${minSize} * 1px),
+        calc(
+          calc(${minSize} * 1px) + (${maxSize} - ${minSize}) *
+            (
+              (min(100vw, calc(100vh * 1.77777777778)) - calc(${minScreen} * 1px)) /
+                (${maxScreen} - ${minScreen})
+            )
+        )
+      )
+    );
   `;
 };
+const getStyleReference = (name) => __awaiter(this, void 0, void 0, function* () {
+    const styleReference = webflow.getStyleByName(name);
+    if (styleReference) {
+        return styleReference;
+    }
+    return yield webflow.createStyle(name);
+});
+const setStylesList = () => __awaiter(this, void 0, void 0, function* () {
+    stylesList.innerHTML = '<li>...</li>';
+    const sizes = yield getSizesObjectFromVariables();
+    const sizeNames = Object.keys(sizes);
+    stylesList.innerHTML = '';
+    for (const size of sizeNames) {
+        const listItem = document.createElement('li');
+        listItem.textContent = size;
+        stylesList.appendChild(listItem);
+    }
+});
 document.addEventListener('DOMContentLoaded', () => __awaiter(this, void 0, void 0, function* () {
+    setStylesList();
     const variableCollectionNames = yield getVariableCollectionNames();
     if (!variableCollectionNames.includes(configVariableCollectionName)) {
         yield createConfigVariableCollection();
@@ -162,21 +195,36 @@ document.addEventListener('DOMContentLoaded', () => __awaiter(this, void 0, void
     }
 }));
 createButton.addEventListener('click', () => __awaiter(this, void 0, void 0, function* () {
-    const configFromVariables = yield getConfigObjectFromVariables();
-    const minScreen = configFromVariables.minScreen;
-    const maxScreen = configFromVariables.maxScreen;
-    const sizesFromVariables = yield getSizesObjectFromVariables();
-    const sizeNames = Object.keys(sizesFromVariables);
-    for (const name of sizeNames) {
-        const size = sizesFromVariables[name];
-        const properties = size.properties;
-        const cssProperties = {};
-        for (const property of properties) {
-            const propertyName = property.name;
-            const cssValue = getFluidCssString(property.min, property.max, minScreen, maxScreen);
-            cssProperties[propertyName] = cssValue;
+    createButton.setAttribute('disabled', 'true');
+    statusText.classList.remove('extension__status--success', 'extension__status--error');
+    try {
+        const configFromVariables = yield getConfigObjectFromVariables();
+        const minScreen = configFromVariables.minScreen;
+        const maxScreen = configFromVariables.maxScreen;
+        const sizesFromVariables = yield getSizesObjectFromVariables();
+        const sizeNames = Object.keys(sizesFromVariables);
+        for (const name of sizeNames) {
+            const size = sizesFromVariables[name];
+            const properties = size.properties;
+            const cssProperties = {};
+            for (const property of properties) {
+                const propertyName = property.name;
+                const cssValue = property.min === property.max
+                    ? property.min
+                    : getFluidCssString(property.min, property.max, minScreen, maxScreen);
+                cssProperties[propertyName] = cssValue;
+            }
+            const styleReference = yield getStyleReference(name);
+            yield styleReference.setProperties(cssProperties);
         }
-        const styleReference = yield webflow.createStyle(name);
-        yield styleReference.setProperties(cssProperties);
     }
+    catch (e) {
+        createButton.removeAttribute('disabled');
+        statusText.classList.add('extension__status--error');
+        statusText.textContent = 'error :(';
+        throw e;
+    }
+    createButton.removeAttribute('disabled');
+    statusText.classList.add('extension__status--success');
+    statusText.textContent = 'success :)';
 }));

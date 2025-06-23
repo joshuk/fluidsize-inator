@@ -3,12 +3,34 @@
   <head>
     <meta charset="UTF-8" />
     <link href="./styles.css" rel="stylesheet" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Work+Sans:ital,wght@0,100..900;1,100..900&display=swap"
+      rel="stylesheet"
+    />
   </head>
 
   <body>
-    <p>press da button to make styles</p>
+    <div class="extension__wrapper">
+      <div class="extension__uiWrapper">
+        <p class="extension__header">Click on the 🦐 to create styles!</p>
 
-    <button class="js-create-styles">create</button>
+        <button
+          class="extension__button extension__button--large js-create-styles"
+        >
+          <span class="extension__buttonIcon">🦐</span>
+        </button>
+
+        <p class="extension__status js-status"></p>
+      </div>
+
+      <div class="extension__stylesListWrapper">
+        <p class="extension__header">styles to create</p>
+
+        <ul class="extension__stylesList js-styles-list"></ul>
+      </div>
+    </div>
 
     <script src="index.js" defer></script>
   </body>

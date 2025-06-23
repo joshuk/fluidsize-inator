@@ -1,13 +1,101 @@
 html,
 body {
   height: 100%;
+  font-family: 'Work Sans', sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-style: normal;
 }
 
 body {
   margin: 0;
+  background: #fff;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.extension__wrapper {
+  height: 100%;
   display: flex;
   align-items: center;
-  color: white;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.extension__uiWrapper {
+  display: flex;
   flex-direction: column;
   justify-content: center;
+}
+
+.extension__header {
+  max-width: 18ch;
+  text-align: center;
+}
+
+.extension__button {
+  padding: 4px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: transform 0.3s;
+}
+
+.extension__button--large {
+  font-size: 20px;
+}
+
+.extension__button:not([disabled='true']):hover {
+  transform: scale(1.1);
+}
+
+.extension__button[disabled='true'] {
+  pointer-events: none;
+}
+
+.extension__button[disabled='true'] .extension__buttonIcon {
+  animation: spin 1s linear infinite;
+}
+
+.extension__buttonIcon {
+  display: block;
+  transform-origin: 50% 55%;
+}
+
+.extension__status {
+  display: none;
+  margin: 6px 0 0;
+  font-size: 12px;
+  text-align: center;
+}
+
+.extension__status--success {
+  display: block;
+  color: #2cb02c;
+}
+
+.extension__status--error {
+  display: block;
+  color: #f24343;
+}
+
+.extension__stylesList {
+  display: flex;
+  max-width: 160px;
+  padding: 0;
+  flex-wrap: wrap;
+  gap: 4px;
+  justify-content: center;
+  list-style: none;
+}
+
+.extension__stylesList li {
+  font-size: 12px;
 }
