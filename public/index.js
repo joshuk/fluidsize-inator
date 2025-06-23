@@ -166,7 +166,7 @@ const getFluidCssString = (minSize, maxSize, minScreen, maxScreen) => {
   `;
 };
 const getStyleReference = (name) => __awaiter(this, void 0, void 0, function* () {
-    const styleReference = webflow.getStyleByName(name);
+    const styleReference = yield webflow.getStyleByName(name);
     if (styleReference) {
         return styleReference;
     }

@@ -210,7 +210,7 @@ const getFluidCssString = (minSize, maxSize, minScreen, maxScreen) => {
 }
 
 const getStyleReference = async name => {
-  const styleReference = webflow.getStyleByName(name)
+  const styleReference = await webflow.getStyleByName(name)
 
   if (styleReference) {
     return styleReference
@@ -290,6 +290,7 @@ createButton.addEventListener('click', async () => {
       }
 
       const styleReference = await getStyleReference(name)
+
       await styleReference.setProperties(cssProperties)
     }
   } catch (e) {
